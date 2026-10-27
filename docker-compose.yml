@@ -1,0 +1,59 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n@sha256:bcb4e4917141f4a5249c8eadf2776d347f4c2ede75adfbbc82064826af9a8ead
+    container_name: n8n-hqt
+    ports:
+      - "5678:5678"
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      GENERIC_TIMEZONE: Asia/Ho_Chi_Minh
+      N8N_RESTRICT_FILE_ACCESS_TO: /workspace
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - type: bind
+        source: C:/Users/DELL/Dropbox/PC/Downloads/HQT
+        target: /workspace
+    depends_on:
+      - qa-runner
+    restart: unless-stopped
+
+  qa-runner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.qa
+    image: hqt-pytest-runner:1.0
+    container_name: hqt-pytest-runner
+    volumes:
+      - type: bind
+        source: C:/Users/DELL/Dropbox/PC/Downloads/HQT
+        target: /workspace
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    image: hqt-web:1.0
+    container_name: hqt-web
+    env_file:
+      - ./admin.env
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+    working_dir: /workspace
+    volumes:
+      - type: bind
+        source: C:/Users/DELL/Dropbox/PC/Downloads/HQT
+        target: /workspace
+    ports:
+      - "8000:8000"
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 8000
+    restart: unless-stopped
+    depends_on:
+      - qa-runner
+
+volumes:
+  n8n_data:
+    external: true

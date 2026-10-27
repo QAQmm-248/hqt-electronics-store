@@ -1,0 +1,9 @@
+.desktop-nav .mega-menu,
+.desktop-nav:hover .mega-menu,
+.desktop-nav:focus-within .mega-menu{display:none!important}
+.desktop-nav .mega-menu.brands-open{display:block!important;width:340px;max-width:calc(100vw - 40px);padding:14px;top:calc(100% + 10px);right:auto;background:rgba(255,255,255,.96);border:1px solid #e5e5fa;border-radius:18px;box-shadow:0 16px 36px #32406d1a}
+.mega-menu:before{content:'';position:absolute;left:0;right:0;top:-14px;height:14px}
+.brand-menu-options{display:flex;flex-wrap:wrap;gap:8px;color:#52627c;font-size:13px;line-height:1.5}
+.brand-menu-options button{display:flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;border:1px solid #e0e4f4;border-radius:12px;background:#f9faff;color:#34425e;font:600 13px/1.35 Inter,'Segoe UI',sans-serif;transition:background .15s,border-color .15s}
+.brand-menu-options button:hover,.brand-menu-options button:focus-visible{background:#eeedff;border-color:#ada7ef;color:#423da2;outline:2px solid transparent}
+@media(max-width:700px){.desktop-nav .mega-menu.brands-open{display:none!important}}

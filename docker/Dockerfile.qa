@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends unixodbc && rm -rf /var/lib/apt/lists/*
+WORKDIR /opt/runner
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+COPY qa_runner.py ./qa_runner.py
+USER 1000:1000
+EXPOSE 8080
+CMD ["python", "/opt/runner/qa_runner.py"]

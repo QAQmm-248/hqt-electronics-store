@@ -1,0 +1,15 @@
+/* Shared typography and optical alignment pass */
+html { font-family: Inter, "Segoe UI", Arial, sans-serif; }
+body { font-family: Inter, "Segoe UI", Arial, sans-serif; line-height: 1.5; text-rendering: optimizeLegibility; }
+.headin, .navin, .container, .footerin { align-items: center; }
+.card { display: flex; flex-direction: column; min-width: 0; }
+.phone { display: grid !important; place-items: center !important; align-content: center; overflow: hidden; }
+.phone img { display: block; width: 100%; height: 100%; object-fit: contain !important; object-position: center center !important; margin: 0 auto; }
+.tag, .card h3, .spec, .price, .stock { text-align: left; }
+.card h3 { line-height: 1.35 !important; margin: 8px 0 !important; }
+.actions { align-items: stretch; }
+.actions .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; line-height: 1.2; }
+.icon-btn, .x, .profile-avatar { display: inline-flex; align-items: center; justify-content: center; }
+.icon-btn svg, .x svg { display: block; width: 20px; height: 20px; }
+.x { line-height: 1; }
+@media (max-width: 580px) { .phone { height: 155px !important; min-height: 155px !important; } }

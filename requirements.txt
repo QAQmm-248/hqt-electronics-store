@@ -1,0 +1,8 @@
+fastapi
+pytest
+httpx
+uvicorn
+
+python-dotenv
+
+pyodbc
