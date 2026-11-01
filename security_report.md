@@ -1,4 +1,4 @@
-# Module 07 — Bảo mật và phân quyền
+# 3K Store — Module 07: Bảo mật và phân quyền
 
 ## Mô hình
 
@@ -17,7 +17,7 @@
 
 ## Kiểm thử
 
-Chạy `sql/15_security_tests.sql` bằng tài khoản DBA. Kết quả cần có các role, quyền SELECT/EXECUTE cho thao tác được phép và các dòng DENY cho thao tác bị từ chối. Không chạy lệnh INSERT/DELETE phá dữ liệu để kiểm thử.
+Chạy `sql/11_security_tests.sql` bằng tài khoản DBA. Kết quả cần có các role, quyền SELECT/EXECUTE cho thao tác được phép và các dòng DENY cho thao tác bị từ chối. Không chạy lệnh INSERT/DELETE phá dữ liệu để kiểm thử.
 
 ## Rủi ro đã kiểm soát
 

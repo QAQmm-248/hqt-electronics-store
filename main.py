@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-app = FastAPI(title="HQT Electronics Store", version="2.0")
+app = FastAPI(title="3K Store", version="2.0")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/product-images", StaticFiles(directory="data/anh_san_pham"), name="product-images")
 COOKIE = "hqt_session"
@@ -180,16 +180,16 @@ class Account(BaseModel):
 
 class Register(Account):
     full_name: str = Field(min_length=2, max_length=150)
-    phone: str = Field(min_length=8, max_length=20)
+    phone: str = Field(min_length=10, max_length=10, pattern=r"^[0-9]{10}$")
     email: Optional[str] = Field(default=None, max_length=150)
-    address: Optional[str] = Field(default=None, max_length=300)
+    address: Optional[str] = Field(default=None, max_length=250)
 
 class Checkout(BaseModel):
     items: list[dict] = Field(min_length=1, max_length=30)
     full_name: str = Field(min_length=2, max_length=150)
-    phone: str = Field(min_length=8, max_length=20)
-    email: Optional[str] = None
-    address: Optional[str] = None
+    phone: str = Field(min_length=10, max_length=10, pattern=r"^[0-9]{10}$")
+    email: Optional[str] = Field(default=None, max_length=150)
+    address: Optional[str] = Field(default=None, max_length=250)
 
 class ProductInput(BaseModel):
     sku: str = Field(min_length=2, max_length=30)

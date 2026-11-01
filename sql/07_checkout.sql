@@ -5,8 +5,8 @@ GO
 SET ANSI_NULLS ON;
 GO
 
--- The assignment's Orders/OrderItems/Products remain the source of truth.
--- Web orders use the existing CreatedBy user and CustomerId links.
+-- Cac bang Orders, OrderItems va Products cua bai tap la nguon du lieu chinh.
+-- Don dat tren web su dung lien ket CreatedBy va CustomerId hien co.
 CREATE OR ALTER PROCEDURE dbo.usp_CreateOrder
     @UserId INT,
     @FullName NVARCHAR(150),

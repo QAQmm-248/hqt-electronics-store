@@ -12,12 +12,14 @@ WHERE pr.name IN (N'role_store_admin',N'role_store_staff',N'role_report_viewer',
 ORDER BY pr.name,ObjectName,pe.permission_name;
 GO
 
-/* Positive checks: reporting views and checkout procedure must be executable. */
+/* HAS_PERMS_BY_NAME phản ánh ngữ cảnh đang chạy truy vấn; tự nó không giả lập từng role. */
+/* Kiem tra quyen doc view bao cao va quyen thuc thi thu tuc dat hang. */
 SELECT HAS_PERMS_BY_NAME(N'dbo.vw_ProductInventory','OBJECT','SELECT') AS CanReadProductView,
        HAS_PERMS_BY_NAME(N'dbo.usp_CreateOrder','OBJECT','EXECUTE') AS CanCreateOrder;
 GO
 
-/* Negative checks are expressed as explicit DENY rows, avoiding destructive tests. */
+/* Truy vấn dưới đây liệt kê DENY đã cấu hình; chưa trực tiếp thử đăng nhập và thao tác bằng từng principal. */
+/* Kiem tra quyen bi tu choi qua cac dong DENY, khong chay thao tac pha huy. */
 SELECT pr.name AS PrincipalName, pe.state_desc, pe.permission_name,
        OBJECT_SCHEMA_NAME(pe.major_id)+N'.'+OBJECT_NAME(pe.major_id) AS ObjectName
 FROM sys.database_permissions pe

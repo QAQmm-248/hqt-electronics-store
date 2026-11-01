@@ -1,16 +1,13 @@
-﻿USE master;
+/* Module 1-2: script nền minh họa tạo schema và dữ liệu mẫu cho PhoneStore. */
+USE master;
 GO
-IF DB_ID(N'PhoneStore') IS NOT NULL
-BEGIN
-    ALTER DATABASE PhoneStore SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE PhoneStore;
-END;
-GO
+
 CREATE DATABASE PhoneStore;
 GO
 USE PhoneStore;
 GO
 
+/* Nhóm tài khoản và hồ sơ người dùng của hệ thống. */
 CREATE TABLE dbo.Users
 (
     UserId       INT IDENTITY(1,1) NOT NULL,
@@ -60,6 +57,7 @@ CREATE UNIQUE INDEX UQ_Customers_UserId_NotNull
     ON dbo.Customers(UserId) WHERE UserId IS NOT NULL;
 GO
 
+/* Danh mục, thương hiệu và sản phẩm tạo thành phần catalog. */
 CREATE TABLE dbo.Categories
 (
     CategoryId   INT IDENTITY(1,1) NOT NULL,
@@ -93,6 +91,7 @@ CREATE TABLE dbo.Suppliers
 );
 GO
 
+/* Sản phẩm giữ khóa tham chiếu đến danh mục và thương hiệu; giá/tồn có ràng buộc miền. */
 CREATE TABLE dbo.Products
 (
     ProductId     INT IDENTITY(1,1) NOT NULL,
@@ -115,6 +114,7 @@ CREATE TABLE dbo.Products
 );
 GO
 
+/* Phiếu nhập và dòng phiếu nhập lưu lịch sử nhận hàng theo nhà cung cấp. */
 CREATE TABLE dbo.StockReceipts
 (
     ReceiptId            INT IDENTITY(1,1) NOT NULL,
@@ -141,6 +141,7 @@ CREATE TABLE dbo.StockReceiptItems
 );
 GO
 
+/* Đơn hàng và dòng đơn tách riêng để lưu nhiều sản phẩm trong một giao dịch. */
 CREATE TABLE dbo.Orders
 (
     OrderId             INT IDENTITY(1,1) NOT NULL,
@@ -177,6 +178,7 @@ CREATE TABLE dbo.OrderItems
 );
 GO
 
+/* Dữ liệu mẫu được nạp theo thứ tự bảng cha trước bảng phụ thuộc. */
 INSERT dbo.Users (Username, PasswordHash, RoleName)
 VALUES ('admin', 'demo_hash_admin', 'admin'),
        ('staff01', 'demo_hash_staff01', 'staff'),

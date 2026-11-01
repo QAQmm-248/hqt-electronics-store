@@ -1,16 +1,36 @@
-﻿SET NOCOUNT ON;
+/* Mục đích: nâng cấp schema PhoneStore theo hướng tương thích ứng dụng; chạy sau schema nền. */
+SET NOCOUNT ON;
 USE PhoneStore;
 GO
-/* Non-destructive upgrade. Never drops PhoneStore, users, orders, or products. */
+/* Nang cap khong pha huy: khong xoa PhoneStore, nguoi dung, don hang hoac san pham. */
 IF COL_LENGTH('dbo.Products','ProductName') IS NOT NULL ALTER TABLE dbo.Products ALTER COLUMN ProductName NVARCHAR(400) NOT NULL;
+/* Bo sung cac cot ung dung can nhung script nen Module 1-2 chua co. */
+IF COL_LENGTH('dbo.Products','RAMGB') IS NULL ALTER TABLE dbo.Products ADD RAMGB INT NULL;
+IF COL_LENGTH('dbo.Products','StorageGB') IS NULL ALTER TABLE dbo.Products ADD StorageGB INT NULL;
+IF COL_LENGTH('dbo.Products','ImagePath') IS NULL ALTER TABLE dbo.Products ADD ImagePath NVARCHAR(500) NULL;
+IF COL_LENGTH('dbo.Products','SourceURL') IS NULL ALTER TABLE dbo.Products ADD SourceURL NVARCHAR(500) NULL;
+IF COL_LENGTH('dbo.Products','PriceCheckedAt') IS NULL ALTER TABLE dbo.Products ADD PriceCheckedAt DATETIME2(0) NULL;
+IF COL_LENGTH('dbo.Products','IsDemoData') IS NULL ALTER TABLE dbo.Products ADD IsDemoData BIT NOT NULL CONSTRAINT DF_Products_IsDemoData DEFAULT(1) WITH VALUES;
 IF COL_LENGTH('dbo.Products','WarrantyMonths') IS NULL ALTER TABLE dbo.Products ADD WarrantyMonths INT NULL;
 IF COL_LENGTH('dbo.Products','Description') IS NULL ALTER TABLE dbo.Products ADD Description NVARCHAR(1000) NULL;
 IF COL_LENGTH('dbo.Products','DataSource') IS NULL ALTER TABLE dbo.Products ADD DataSource NVARCHAR(80) NULL;
 IF COL_LENGTH('dbo.Products','ImportedAt') IS NULL ALTER TABLE dbo.Products ADD ImportedAt DATETIME2(0) NULL;
 IF COL_LENGTH('dbo.OrderItems','UnitCost') IS NULL ALTER TABLE dbo.OrderItems ADD UnitCost DECIMAL(18,2) NOT NULL CONSTRAINT DF_OrderItems_UnitCost DEFAULT(0) WITH VALUES;
 IF COL_LENGTH('dbo.Orders','CompletedAt') IS NULL ALTER TABLE dbo.Orders ADD CompletedAt DATETIME2(0) NULL;
+/* Don cua nhan vien giu CreatedByEmployeeId; don web luu tai khoan o CreatedBy. */
 IF COL_LENGTH('dbo.Orders','CreatedByEmployeeId') IS NULL ALTER TABLE dbo.Orders ADD CreatedByEmployeeId INT NULL;
-IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name='FK_Orders_Employees') ALTER TABLE dbo.Orders ADD CONSTRAINT FK_Orders_Employees FOREIGN KEY(CreatedByEmployeeId) REFERENCES dbo.Employees(EmployeeId);
+IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID(N'dbo.Orders') AND name=N'CreatedByEmployeeId' AND is_nullable=0)
+BEGIN
+ IF EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_Orders_Employees' AND parent_object_id=OBJECT_ID(N'dbo.Orders'))
+  ALTER TABLE dbo.Orders DROP CONSTRAINT FK_Orders_Employees;
+ ALTER TABLE dbo.Orders ALTER COLUMN CreatedByEmployeeId INT NULL;
+END;
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_Orders_Employees' AND parent_object_id=OBJECT_ID(N'dbo.Orders'))
+ ALTER TABLE dbo.Orders ADD CONSTRAINT FK_Orders_Employees FOREIGN KEY(CreatedByEmployeeId) REFERENCES dbo.Employees(EmployeeId);
+IF COL_LENGTH('dbo.Orders','CreatedBy') IS NULL ALTER TABLE dbo.Orders ADD CreatedBy INT NULL;
+IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_Orders_CreatedBy' AND parent_object_id=OBJECT_ID(N'dbo.Orders'))
+ ALTER TABLE dbo.Orders ADD CONSTRAINT FK_Orders_CreatedBy FOREIGN KEY(CreatedBy) REFERENCES dbo.Users(UserId);
+IF COL_LENGTH('dbo.Orders','TotalAmount') IS NULL ALTER TABLE dbo.Orders ADD TotalAmount DECIMAL(18,2) NOT NULL CONSTRAINT DF_Orders_TotalAmount DEFAULT(0) WITH VALUES;
 IF COL_LENGTH('dbo.Orders','ShippingName') IS NULL ALTER TABLE dbo.Orders ADD ShippingName NVARCHAR(150) NULL;
 IF COL_LENGTH('dbo.Orders','ShippingPhone') IS NULL ALTER TABLE dbo.Orders ADD ShippingPhone VARCHAR(20) NULL;
 IF COL_LENGTH('dbo.Orders','ShippingEmail') IS NULL ALTER TABLE dbo.Orders ADD ShippingEmail NVARCHAR(150) NULL;
@@ -25,10 +45,15 @@ IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name='StockReceipts' AND schema_id
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name='StockReceiptItems' AND schema_id=SCHEMA_ID('dbo'))
  CREATE TABLE dbo.StockReceiptItems(ReceiptId INT NOT NULL,ProductId INT NOT NULL,Quantity INT NOT NULL,UnitCost DECIMAL(18,2) NOT NULL,CONSTRAINT PK_StockReceiptItems PRIMARY KEY(ReceiptId,ProductId),CONSTRAINT CK_StockReceiptItems_Qty CHECK(Quantity>0),CONSTRAINT FK_StockReceiptItems_Receipt FOREIGN KEY(ReceiptId) REFERENCES dbo.StockReceipts(ReceiptId),CONSTRAINT FK_StockReceiptItems_Product FOREIGN KEY(ProductId) REFERENCES dbo.Products(ProductId));
 GO
-/* Preserve the existing web role vocabulary while restricting accounts to admin/user. */
+/* Cap nhat du lieu cu sau khi SQL Server da nhan cac cot vua them. */
+UPDATE o SET CreatedBy=e.UserId FROM dbo.Orders o JOIN dbo.Employees e ON e.EmployeeId=o.CreatedByEmployeeId WHERE o.CreatedBy IS NULL;
+UPDATE o SET TotalAmount=COALESCE((SELECT SUM(i.LineTotal) FROM dbo.OrderItems i WHERE i.OrderId=o.OrderId),0)
+FROM dbo.Orders o WHERE o.TotalAmount=0 AND EXISTS(SELECT 1 FROM dbo.OrderItems i WHERE i.OrderId=o.OrderId);
+GO
+/* Giu staff/customer cua Module 1-2 va chap nhan user dang ky tu web. */
 IF EXISTS(SELECT 1 FROM sys.check_constraints WHERE name='CK_Users_Role') ALTER TABLE dbo.Users DROP CONSTRAINT CK_Users_Role;
 IF EXISTS(SELECT 1 FROM sys.check_constraints WHERE name='CK_Users_RoleName') ALTER TABLE dbo.Users DROP CONSTRAINT CK_Users_RoleName;
-ALTER TABLE dbo.Users WITH CHECK ADD CONSTRAINT CK_Users_Role CHECK(RoleName IN ('admin','user'));
+    ALTER TABLE dbo.Users WITH CHECK ADD CONSTRAINT CK_Users_Role CHECK(RoleName IN ('admin','staff','customer','user'));
 GO
 CREATE OR ALTER VIEW dbo.vw_ProductInventory AS
  SELECT p.ProductId,p.SKU,p.ProductName,b.BrandName,c.CategoryName,p.RAMGB,p.StorageGB,p.SalePrice,p.CostPrice,p.StockQuantity,p.ImagePath,
@@ -37,8 +62,9 @@ CREATE OR ALTER VIEW dbo.vw_ProductInventory AS
 GO
 CREATE OR ALTER VIEW dbo.vw_OrderDetails AS
  SELECT o.OrderId,o.OrderDate,o.Status,o.TotalAmount,COALESCE(c.FullName,o.ShippingName,N'Khách hàng') CustomerName,
-        COALESCE(c.Phone,o.ShippingPhone) Phone,u.Username,p.ProductName,oi.Quantity,oi.UnitPrice,oi.LineTotal
- FROM dbo.Orders o LEFT JOIN dbo.Customers c ON c.CustomerId=o.CustomerId JOIN dbo.Users u ON u.UserId=o.CreatedBy
+        COALESCE(c.Phone,o.ShippingPhone) Phone,COALESCE(u.Username,eu.Username,N'Không xác định') Username,p.ProductName,oi.Quantity,oi.UnitPrice,oi.LineTotal
+ FROM dbo.Orders o LEFT JOIN dbo.Customers c ON c.CustomerId=o.CustomerId LEFT JOIN dbo.Users u ON u.UserId=o.CreatedBy
+ LEFT JOIN dbo.Employees e ON e.EmployeeId=o.CreatedByEmployeeId LEFT JOIN dbo.Users eu ON eu.UserId=e.UserId
  JOIN dbo.OrderItems oi ON oi.OrderId=o.OrderId JOIN dbo.Products p ON p.ProductId=oi.ProductId;
 GO
 CREATE OR ALTER VIEW dbo.vw_MonthlyRevenue AS

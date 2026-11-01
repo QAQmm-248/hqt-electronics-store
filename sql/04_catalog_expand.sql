@@ -1,4 +1,5 @@
-﻿USE PhoneStore;
+/* Mở rộng catalog bằng dữ liệu mẫu học tập; thông tin giá và tồn không đại diện tồn kho thời gian thực. */
+USE PhoneStore;
 GO
 BEGIN TRAN;
 IF NOT EXISTS(SELECT 1 FROM dbo.Products WHERE SKU=N'DT-0501') INSERT dbo.Products(SKU,ProductName,BrandId,CategoryId,RAMGB,StorageGB,SalePrice,CostPrice,StockQuantity,ImagePath,SourceURL,PriceCheckedAt,IsDemoData,IsActive,WarrantyMonths,Description,DataSource,ImportedAt) VALUES(N'DT-0501',N'Nubia A76 4GB 128GB (NFC) · Phiên bản tham khảo 1',(SELECT BrandId FROM dbo.Brands WHERE BrandName=N'Nubia'),(SELECT CategoryId FROM dbo.Categories WHERE CategoryName=N'Điện thoại thông minh'),4,128,2790000,2372000,10,N'/product-images/FPT-D7EBECC02F26B982.jpg',NULL,NULL,1,1,12,N'Nubia A76 4GB 128GB (NFC) · Phiên bản tham khảo 1 - dữ liệu mẫu học tập theo nhóm Điện thoại thông minh',N'FPTShop',SYSDATETIME());

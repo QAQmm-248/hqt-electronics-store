@@ -1,28 +1,7 @@
-﻿# Bo du lieu nop bai
+# Dữ liệu mẫu 3K Store
 
-File chinh: `du_lieu_nop_thiet_bi_dien_tu.csv`
+`products_master.csv` và `du_lieu_nop_thiet_bi_dien_tu.csv` hiện có 500 dòng và 500 SKU không trùng. Nhóm hàng gồm điện thoại, laptop, máy tính bảng, màn hình và phụ kiện. `image_file` trỏ đến tệp ở `anh_san_pham/`; `image_path` là đường dẫn web `/product-images/<tên-tệp>`.
 
-- 300 san pham thuoc de tai cua hang thiet bi dien tu.
-- Nguon: FPTShop, CellphoneS va DienMayXanh.
-- Khong luu URL nguon trong file nop.
-- Anh tuong ung nam trong `anh_san_pham/` va duoc web phuc vu truc tiep tu day.
-- `products_master.csv` la ban chuan hoa duy nhat de dong bo SQL va website; `image_path` duoc tao tu ten anh.
-- Ca 300 anh trong bo du lieu hien deu co tep anh tuong ung.
+Có 500 tệp ảnh mở được, nhưng 206 tệp trùng nội dung ảnh với tệp khác. Có 200 sản phẩm mang nhãn `Phiên bản tham khảo` là biến thể dữ liệu mẫu, chưa được xác minh là sản phẩm thu thập độc lập. Trường `source_site` chỉ ghi tên website nguồn, không ghi URL. Giá vốn và tồn kho là số liệu mô phỏng.
 
-## Y nghia cot
-
-| Cot | Y nghia |
-|---|---|
-| product_code | Ma san pham trong bo du lieu nop |
-| name | Ten san pham |
-| brand | Hang san xuat |
-| category | Nhom hang |
-| ram_gb, storage_gb | Cau hinh bo nho |
-| sale_price, cost_price | Gia ban va gia von tham khao |
-| stock_quantity | Ton kho mau |
-| image_file | Ten file anh trong `anh_san_pham/` |
-| image_status | Trang thai anh |
-| source_site | Ten website nguon, khong phai duong dan |
-| warranty_months | Bao hanh tham khao |
-| description | Mo ta ngan |
-| is_demo_data | Co phai du lieu mau hay khong |
+CSV chỉ là dữ liệu nạp ban đầu. Đơn hàng và tồn kho thực tế nằm trong SQL Server; mua hàng trên web không tự sửa CSV.

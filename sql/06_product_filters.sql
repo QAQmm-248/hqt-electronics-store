@@ -1,4 +1,4 @@
-/* Product catalog filters for PhoneStore / Module 1-2 */
+/* Loc danh muc san pham PhoneStore / Module 1-2 */
 USE PhoneStore;
 GO
 
@@ -22,7 +22,7 @@ BEGIN
 END;
 GO
 
--- Catalog summary by category and brand for Module 2 reports.
+-- Tong hop san pham theo danh muc va thuong hieu cho bao cao Module 2.
 SELECT CategoryName, BrandName, COUNT(*) AS ProductCount,
        SUM(StockQuantity) AS UnitsInStock,
        MIN(SalePrice) AS MinPrice, MAX(SalePrice) AS MaxPrice
