@@ -11,8 +11,9 @@ File điều phối là `master_run.sql` ở thư mục gốc. Mở SSMS, bật 
 5. `07_checkout.sql`: cài thủ tục đặt hàng. Cần tạo SQL user `phone_app` trước câu `GRANT` cuối tệp.
 6. `08_business_logic.sql`: tạo 2 hàm, 3 thủ tục và trigger nghiệp vụ; file này chỉ tạo đối tượng, không tự chạy thao tác thử thay đổi dữ liệu.
 7. `09_report_queries.sql`: 11 truy vấn nghiệp vụ, chỉ đọc; có JOIN, GROUP BY/HAVING, truy vấn con, UNION, TOP, BETWEEN và LIKE.
-8. `10_security_roles.sql`: role/quyền SQL; yêu cầu chạy bằng tài khoản có quyền quản trị database và đã có `phone_app`. `11_security_tests.sql` chỉ xem metadata quyền, chưa thay thế kiểm thử đăng nhập từng role.
-9. `12_order_sync_check.sql`: đối chiếu dữ liệu sau khi đặt hàng qua web.
+8. `10_security_roles.sql`: tạo role, cấp quyền, DENY và có khối tạo USER/gán `report_reader` khi LOGIN đã được DBA tạo trước. Lệnh `CREATE LOGIN` vẫn để comment để không đưa mật khẩu vào kho mã nguồn. `phone_app` chỉ nhận quyền khi database principal đã tồn tại.
+9. `11_security_tests.sql`: xem metadata quyền, kiểm tra quyền trong ngữ cảnh `phone_app` nếu USER tồn tại và thử thao tác DELETE không làm thay đổi dữ liệu. Muốn kiểm tra LOGIN thật, DBA phải tạo tài khoản riêng rồi chạy lại.
+10. `12_order_sync_check.sql`: đối chiếu dữ liệu sau khi đặt hàng qua web.
 
 `91_cleanup_legacy.sql` chỉ dùng với các SKU cũ được nêu trong tệp. `90_demo_accounts.sql` tạo/cập nhật tài khoản demo; không chạy trên tài khoản thật.
 
